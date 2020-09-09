@@ -21,4 +21,4 @@ egin-tools -model -database hyperf_admin -table reports
 
 # 生成数据库模型文件
 egin-tools -model -database hyperf_admin
-``
+```
