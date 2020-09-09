@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
-
-	"github.com/daodao97/egin/lib"
 
 	"github.com/daodao97/egin-tools/asset"
 
@@ -77,7 +76,7 @@ func genSwagger() {
 	AllPath := make(swagger.Paths)
 	var AllTags []swagger.Tags
 
-	lib.RecursiveDir("controller", func(filePath string) {
+	RecursiveDir("controller", func(filePath string) {
 		structInfo, err := parser.FileStructInfo(filePath)
 		onErr(err)
 		paths, tags := swagger.Filter(structInfo)
@@ -98,7 +97,7 @@ func genSwagger() {
 }
 
 func genRouter() {
-	lib.RecursiveDir("controller", func(filePath string) {
+	RecursiveDir("controller", func(filePath string) {
 		structInfo, err := parser.FileStructInfo(filePath)
 		onErr(err)
 		varsInfo, err := parser.FileVarInfo(filePath)
@@ -126,5 +125,19 @@ func onErr(err error) {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+}
+
+func RecursiveDir(pathname string, f func(filePath string)) {
+	rd, err := ioutil.ReadDir(pathname)
+	if err == nil {
+		for _, fi := range rd {
+			if fi.IsDir() {
+				fmt.Printf("[%s]\n", pathname+"\\"+fi.Name())
+				RecursiveDir(pathname+fi.Name()+"\\", f)
+			} else {
+				f(pathname + "/" + fi.Name())
+			}
+		}
 	}
 }
