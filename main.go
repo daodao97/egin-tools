@@ -19,7 +19,6 @@ import (
 )
 
 var genDoc = flag.Bool("swagger", false, "是否生成 swagger.json 文件, 默认否")
-var docFilePath = flag.String("swagger-file", "tools/ui/swagger.json", "swagger文件的存放路径")
 var startUi = flag.Bool("ui", false, "是否开启 swagger ui 的 http 服务")
 var uiPort = flag.String("ui-port", "8000", "swagger ui的监听端口")
 var genRoute = flag.Bool("route", false, "是否生成文件对应的路由文件")
