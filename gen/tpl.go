@@ -11,17 +11,11 @@ const ApiWithParam = `
 r.Handle("{{ .method }}", "{{ .path }}", func () func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		var params controller.{{ .paramsStruct }}
-		err := ctx.ShouldBind(&params)
-		if err != nil {
-			errs, _ := utils.TransErr(params, err.(validator.ValidationErrors))
-			ctx.JSON(http.StatusOK, gin.H{
-				"code":    consts.ErrorParam,
-				"message": errs,
-			})
-			ctx.Abort()
+		errs := utils.Validated(ctx, &params)
+		if errs != nil {
+			egin.Fail(ctx, consts.ErrorParam, strings.Join(errs, "\n"))
 			return
 		}
-
 		result, code, err := controller.{{ .entity }}{}.{{ .funcName }}(ctx, params)
 		egin.Response(ctx, result, code, err)
 	}
@@ -35,16 +29,15 @@ const RouteFile = `
 package routes
 
 import (
-	"net/http"
+	"strings"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
-
-	"github.com/daodao97/egin/controller"
-	egin "github.com/daodao97/egin/pkg"
+	"github.com/daodao97/egin"
 	"github.com/daodao97/egin/consts"
 	"github.com/daodao97/egin/middleware"
 	"github.com/daodao97/egin/utils"
+	"github.com/gin-gonic/gin"
+
+	"skeleton/controller""
 )
 
 func Reg{{ .entity }}Router(r *gin.Engine) {
