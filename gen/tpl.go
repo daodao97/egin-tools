@@ -62,7 +62,7 @@ package config
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/daodao97/egin/config/routes"
+	"skeleton/config/routes"
 )
 
 func RegRouter(r *gin.Engine) {
