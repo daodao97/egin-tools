@@ -320,9 +320,5 @@ func ModuleName() string {
 		return ""
 	}
 
-	fmt.Println(11111111111111)
-	fmt.Println(string(a), strings.Replace(string(a), "module ", "", 1))
-	fmt.Println(11111111111111)
-
 	return strings.Replace(string(a), "module ", "", 1)
 }
