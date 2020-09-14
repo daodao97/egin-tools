@@ -1,9 +1,11 @@
 package gen
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"go/format"
+	"io"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -70,10 +72,11 @@ func MakeRouteHandle(entity string, info parser.StructFunc) (code string, err er
 	}
 
 	args := map[string]interface{}{
-		"method":   method,
-		"entity":   entity,
-		"path":     path,
-		"funcName": info.Name,
+		"method":     method,
+		"entity":     entity,
+		"path":       path,
+		"funcName":   info.Name,
+		"moduleName": ModuleName(),
 	}
 
 	args["middleware"] = ""
@@ -118,6 +121,7 @@ func MakeRouteFile(structInfo []parser.StructInfo, varsInfo []parser.VarInfo) {
 			"entity":                 entity,
 			"handles":                handles,
 			"hasCustomValidateFuncs": false,
+			"moduleName":             ModuleName(),
 		}
 
 		var customValidateVarsName []string
@@ -159,7 +163,8 @@ func MakeRouteExport() {
 		list = append(list, s)
 	}
 	args := map[string]interface{}{
-		"list": sort.StringSlice(list),
+		"list":       sort.StringSlice(list),
+		"moduleName": ModuleName(),
 	}
 	tpl, err := Gen(args, RouteExport)
 	if err != nil {
@@ -233,6 +238,7 @@ func MakeModel(connection string, databases string, table TableInfo) {
 		"backquote":    "`",
 		"fakeDel":      fakeDel,
 		"tableComment": table.Comment,
+		"moduleName":   ModuleName(),
 	}
 
 	tpl, err := Gen(args, Entity)
@@ -298,4 +304,25 @@ func GetTableInfo(connection string, databases string, table string) (result Tab
 	}
 
 	return result
+}
+
+func ModuleName() string {
+	fi, err := os.Open("go.mod")
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		os.Exit(1)
+	}
+	defer fi.Close()
+
+	br := bufio.NewReader(fi)
+	a, _, c := br.ReadLine()
+	if c == io.EOF {
+		return ""
+	}
+
+	fmt.Println(11111111111111)
+	fmt.Println(string(a), strings.Replace(string(a), "module ", "", 1))
+	fmt.Println(11111111111111)
+
+	return strings.Replace(string(a), "module ", "", 1)
 }

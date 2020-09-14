@@ -37,7 +37,7 @@ import (
 	"github.com/daodao97/egin/utils"
 	"github.com/gin-gonic/gin"
 
-	"skeleton/controller"
+	"{{ .moduleName }}/controller"
 )
 
 func Reg{{ .entity }}Router(r *gin.Engine) {
@@ -62,7 +62,7 @@ package config
 import (
 	"github.com/gin-gonic/gin"
 
-	"skeleton/config/routes"
+	"{{ .moduleName }}/config/routes"
 )
 
 func RegRouter(r *gin.Engine) {
