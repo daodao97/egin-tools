@@ -66,6 +66,7 @@ func ui() {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write(js)
 	})
+	fmt.Println("SwaggerUI已启动, 使用 http://127.0.0.1:" + *uiPort + " 打开")
 	err := http.ListenAndServe(":"+*uiPort, nil)
 	onErr(err)
 }
