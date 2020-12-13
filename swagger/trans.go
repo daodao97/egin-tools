@@ -2,6 +2,7 @@ package swagger
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -93,7 +94,8 @@ func transApi(sf parser.StructFunc, info []parser.StructInfo) (api Api, err erro
 			p := explode(v)[1]
 			si, err := filterByName(info, p)
 			if err != nil {
-				panic(err)
+				fmt.Println("not found " + p)
+				continue
 			}
 			api.Parameters = transParams(si.Fields)
 			continue

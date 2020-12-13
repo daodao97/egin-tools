@@ -2,7 +2,14 @@ package gen
 
 const SimpleApi = `
 r.Handle("{{ .method }}", "{{ .path }}", func(ctx *gin.Context) {
-	result, code, err := controller.{{ .entity }}{}.{{ .funcName }}(ctx)
+	{{- range $index, $value := .pathArgs -}} 
+		{{ if eq $value "id"}}
+		{{$value}}, _ := strconv.Atoi(ctx.Param("{{$value}}"))
+		{{ else }}
+		{{$value}} := ctx.Param("{{$value}}")
+		{{ end }}
+	{{- end -}}
+	result, code, err := ctrl.{{ .funcName }}(ctx{{- range $index, $value := .pathArgs }}, {{$value}}{{- end }})
 	egin.Response(ctx, result, code, err)
 }{{ .middleware }})
 `
@@ -16,7 +23,14 @@ r.Handle("{{ .method }}", "{{ .path }}", func () func(ctx *gin.Context) {
 			egin.Fail(ctx, consts.ErrorParam, strings.Join(errs, "\n"))
 			return
 		}
-		result, code, err := controller.{{ .entity }}{}.{{ .funcName }}(ctx, params)
+		{{- range $index, $value := .pathArgs }} 
+			{{ if eq $value "id"}}
+			{{$value}}, _ := strconv.Atoi(ctx.Param("{{$value}}"))
+			{{ else }}
+			{{$value}} := ctx.Param("{{$value}}")
+			{{ end }}
+		{{- end }}
+		result, code, err := ctrl.{{ .funcName }}(ctx{{- range $index, $value := .pathArgs }}, {{$value}}{{- end }}, params)
 		egin.Response(ctx, result, code, err)
 	}
 }(){{ .middleware }})
@@ -24,11 +38,12 @@ r.Handle("{{ .method }}", "{{ .path }}", func () func(ctx *gin.Context) {
 
 const RouteFile = `
 // ****************************
-// 该文件为系统生成, 请勿随意更改
+// 该文件为系统生成, 请勿更改
 // ****************************
 package routes
 
 import (
+	{{ if .strconv }}"strconv"{{ end }}
 	"strings"
 
 	"github.com/daodao97/egin"
@@ -41,6 +56,7 @@ import (
 )
 
 func Reg{{ .entity }}Router(r *gin.Engine) {
+	ctrl := controller.{{ .entity }}{}
 	{{ range $index, $value := .handles }} {{$value}} {{ end }}
 }
 
@@ -55,7 +71,7 @@ func RegUserCustomValidateFunc() {
 
 const RouteExport = `
 // ****************************
-// 该文件为系统生成, 请勿随意更改
+// 该文件为系统生成, 请勿更改
 // ****************************
 package config
 

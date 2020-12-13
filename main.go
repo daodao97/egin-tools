@@ -66,6 +66,7 @@ func ui() {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write(js)
 	})
+	fmt.Println("> Swagger UI start @ http://localhost:8000")
 	err := http.ListenAndServe(":"+*uiPort, nil)
 	onErr(err)
 }

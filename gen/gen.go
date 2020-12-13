@@ -38,7 +38,7 @@ func Gen(data map[string]interface{}, tpl string) (string, error) {
 
 	byteData, err := format.Source(buf.Bytes())
 	if err != nil {
-		return "", errors.Wrapf(err, "format err")
+		return "", errors.Wrapf(err, "format err \n %s", string(buf.Bytes()))
 	}
 	return string(byteData), nil
 }
@@ -47,7 +47,7 @@ func apiMethod(doc []string) (method string, path string, err error) {
 	if doc == nil {
 		return "", "", errors.New("not api")
 	}
-	reg := regexp.MustCompile("^@(Any|Get|Put|Post|Delete)Api\\s?([a-zA-Z0-9_/]+)?\\s?.*")
+	reg := regexp.MustCompile("^@(Any|Get|Put|Post|Delete)Api\\s?([a-zA-Z0-9_/:]+)?\\s?.*")
 	matched := reg.FindStringSubmatch(doc[0])
 	if len(matched) != 3 {
 		return "", "", errors.New("not api")
@@ -71,12 +71,19 @@ func MakeRouteHandle(entity string, info parser.StructFunc) (code string, err er
 		return "", errors.New("not api")
 	}
 
+	res := regexp.MustCompile(":([a-zA-Z0-9])+")
+	pathArgs := res.FindAllString(path, -1)
+	for i, v := range pathArgs {
+		pathArgs[i] = strings.TrimPrefix(v, ":")
+	}
+
 	args := map[string]interface{}{
 		"method":     method,
 		"entity":     entity,
 		"path":       path,
 		"funcName":   info.Name,
 		"moduleName": ModuleName(),
+		"pathArgs":   pathArgs,
 	}
 
 	args["middleware"] = ""
@@ -93,9 +100,17 @@ func MakeRouteHandle(entity string, info parser.StructFunc) (code string, err er
 	}
 
 	tpl := SimpleApi
-	if len(info.Params) == 2 {
-		args["paramsStruct"] = info.Params[1].Type
+	if len(info.Params) == 3 {
+		args["paramsStruct"] = info.Params[len(info.Params)-1].Type
 		tpl = ApiWithParam
+	}
+	if len(info.Params) == 2 {
+		if info.Params[1].Type == "int" {
+			tpl = SimpleApi
+		} else {
+			args["paramsStruct"] = info.Params[1].Type
+			tpl = ApiWithParam
+		}
 	}
 
 	return Gen(args, tpl)
@@ -118,6 +133,7 @@ func MakeRouteFile(structInfo []parser.StructInfo, varsInfo []parser.VarInfo) {
 		}
 
 		argsR := map[string]interface{}{
+			"strconv":                true,
 			"entity":                 entity,
 			"handles":                handles,
 			"hasCustomValidateFuncs": false,

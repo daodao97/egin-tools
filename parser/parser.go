@@ -94,7 +94,7 @@ func getStructFieldTag(fields []*ast.Field) (result []StructField) {
 			result = append(result, StructField{
 				Name: v.Names[0].Name,
 				Tags: tags,
-				Type: v.Type.(*ast.SelectorExpr).Sel.Name,
+				// Type: v.Type.(*ast.SelectorExpr).Sel.Name,
 			})
 		}
 	}
@@ -106,7 +106,7 @@ func getStructFuncDoc(structName string, f *ast.File) (result []StructFunc) {
 
 	for _, item := range f.Decls {
 		fun, ok := item.(*ast.FuncDecl)
-		if !ok || fun.Recv.List[0].Type.(*ast.Ident).Name != structName {
+		if !ok || (fun.Recv != nil && fun.Recv.List[0].Type.(*ast.Ident).Name != structName) {
 			continue
 		}
 		var docs []string
