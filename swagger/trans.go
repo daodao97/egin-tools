@@ -37,7 +37,7 @@ func transController(info parser.StructInfo) (c Controller) {
 			if token[1] != "" {
 				c.Tag = token[1]
 			}
-			if token[2] != "" {
+			if len(token) > 2 && token[2] != "" {
 				c.Desc = token[2]
 			}
 
