@@ -8,6 +8,7 @@ import (
 	"os"
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
+	"github.com/pkg/errors"
 
 	"github.com/daodao97/egin/lib"
 
@@ -25,6 +26,7 @@ var genRoute = flag.Bool("route", false, "是否生成文件对应的路由文�
 var genModelMode = flag.Bool("model", false, "根据mysql表结构生成数据模型")
 var connection = flag.String("connection", "default", "数据库丽连接名")
 var database = flag.String("database", "", "数据库名")
+var genCtrl = flag.Bool("controller", false, "创建控制器")
 var table = flag.String("table", "", "表名")
 var apidoc interface{}
 
@@ -45,6 +47,10 @@ func main() {
 
 	if *genModelMode {
 		genModel()
+	}
+
+	if *genCtrl {
+		genController()
 	}
 }
 
@@ -121,6 +127,13 @@ func genModel() {
 			gen.MakeModel(*connection, *database, t)
 		}
 	}
+}
+
+func genController() {
+	if *table == "" {
+		onErr(errors.New("need -table ***"))
+	}
+	gen.MakeController(*table, "")
 }
 
 func onErr(err error) {

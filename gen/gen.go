@@ -338,3 +338,19 @@ func ModuleName() string {
 
 	return strings.Replace(string(a), "module ", "", 1)
 }
+
+func MakeController(tableName string, desc string)  {
+	table := lib.ToCamelCase(tableName)
+	args := map[string]interface{}{
+		"table": table,
+		"tableName": tableName,
+		"EntityDesc": desc,
+	}
+	tpl, err := Gen(args, ctrlTpl)
+	if err != nil {
+		fmt.Println("gen controller/***.go error", err)
+		os.Exit(1)
+	}
+	_ = ioutil.WriteFile(fmt.Sprintf("controller/%s.go", tableName), []byte(tpl), os.FileMode(0644))
+
+}
