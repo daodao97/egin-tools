@@ -47,7 +47,7 @@ func apiMethod(doc []string) (method string, path string, err error) {
 	if doc == nil {
 		return "", "", errors.New("not api")
 	}
-	reg := regexp.MustCompile("^@(Any|Get|Put|Post|Delete)Api\\s?([a-zA-Z0-9_/:]+)?\\s?.*")
+	reg := regexp.MustCompile("^@(Any|Get|Put|Post|Delete)Api\\s?([a-zA-Z0-9_/:*]+)?\\s?.*")
 	matched := reg.FindStringSubmatch(doc[0])
 	if len(matched) != 3 {
 		return "", "", errors.New("not api")
@@ -71,10 +71,16 @@ func MakeRouteHandle(entity string, info parser.StructFunc) (code string, err er
 		return "", errors.New("not api")
 	}
 
-	res := regexp.MustCompile(":([a-zA-Z0-9])+")
+	res := regexp.MustCompile(":([a-zA-Z0-9*])+")
 	pathArgs := res.FindAllString(path, -1)
 	for i, v := range pathArgs {
 		pathArgs[i] = strings.TrimPrefix(v, ":")
+	}
+
+	method = strings.ToUpper(method)
+
+	if method == "ANY" {
+		method = "Any"
 	}
 
 	args := map[string]interface{}{
@@ -111,6 +117,9 @@ func MakeRouteHandle(entity string, info parser.StructFunc) (code string, err er
 			args["paramsStruct"] = info.Params[1].Type
 			tpl = ApiWithParam
 		}
+	}
+	if info.ResultCount == 0 {
+		tpl = ApiReturnVoid
 	}
 
 	return Gen(args, tpl)
@@ -339,11 +348,11 @@ func ModuleName() string {
 	return strings.Replace(string(a), "module ", "", 1)
 }
 
-func MakeController(tableName string, desc string)  {
+func MakeController(tableName string, desc string) {
 	table := lib.ToCamelCase(tableName)
 	args := map[string]interface{}{
-		"table": table,
-		"tableName": tableName,
+		"table":      table,
+		"tableName":  tableName,
 		"EntityDesc": desc,
 	}
 	tpl, err := Gen(args, ctrlTpl)

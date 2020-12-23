@@ -1,7 +1,7 @@
 package gen
 
 const SimpleApi = `
-r.Handle("{{ .method }}", "{{ .path }}", func(ctx *gin.Context) {
+r.{{ .method }}("{{ .path }}", func(ctx *gin.Context) {
 	{{- range $index, $value := .pathArgs -}} 
 		{{ if eq $value "id"}}
 		{{$value}}, _ := strconv.Atoi(ctx.Param("{{$value}}"))
@@ -15,7 +15,7 @@ r.Handle("{{ .method }}", "{{ .path }}", func(ctx *gin.Context) {
 `
 
 const ApiWithParam = `
-r.Handle("{{ .method }}", "{{ .path }}", func () func(ctx *gin.Context) {
+r.{{ .method }}("{{ .path }}", func () func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		var params controller.{{ .paramsStruct }}
 		errs := utils.Validated(ctx, &params)
@@ -34,6 +34,12 @@ r.Handle("{{ .method }}", "{{ .path }}", func () func(ctx *gin.Context) {
 		egin.Response(ctx, result, code, err)
 	}
 }(){{ .middleware }})
+`
+
+const ApiReturnVoid = `
+r.{{ .method }}("{{ .path }}", func(ctx *gin.Context) {
+	ctrl.{{ .funcName }}(ctx)
+})
 `
 
 const RouteFile = `

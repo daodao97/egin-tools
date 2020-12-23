@@ -16,6 +16,7 @@ require (
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/techxmind/location2ip v1.0.1 // indirect
 	golang.org/x/sys v0.0.0-20200909081042-eff7692f9009 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect

@@ -20,9 +20,10 @@ type FuncParam struct {
 }
 
 type StructFunc struct {
-	Name   string
-	Doc    []string
-	Params []FuncParam
+	Name        string
+	Doc         []string
+	Params      []FuncParam
+	ResultCount int
 }
 
 type StructField struct {
@@ -116,6 +117,10 @@ func getStructFuncDoc(structName string, f *ast.File) (result []StructFunc) {
 		funcName := fun.Name.Name
 		var paramsName []FuncParam
 		params := fun.Type.Params.List
+		resultCount := 0
+		if fun.Type.Results != nil {
+			resultCount = len(fun.Type.Results.List)
+		}
 		for _, v := range params {
 			var ptype string
 			if pt, ok := v.Type.(*ast.StarExpr); ok {
@@ -132,9 +137,10 @@ func getStructFuncDoc(structName string, f *ast.File) (result []StructFunc) {
 		}
 
 		result = append(result, StructFunc{
-			Name:   funcName,
-			Doc:    docs,
-			Params: paramsName,
+			Name:        funcName,
+			Doc:         docs,
+			Params:      paramsName,
+			ResultCount: resultCount,
 		})
 	}
 
